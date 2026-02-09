@@ -2,6 +2,9 @@
 ## Title: Mute Repetitive Brann
 ## Notes: Silences Brann Bronzebeard's voice lines during delves and adventures.
 ## Version: 1.4.0
+## Author: Italist
+## X-Curse-Project-ID: 1109833
+## X-Category: Audio & Video
 ## SavedVariables: MuteBrannSettings
 ## Category: Expansion Features
 ## Category-deDE: Erweiterungsfeatures
@@ -14,6 +17,5 @@
 ## Category-ruRU: Особый контент
 ## Category-zhCN: 特色更新
 ## Category-zhTW: 資料片特色
-## Author: Italist
 
 MuteRepetitiveBrann.lua

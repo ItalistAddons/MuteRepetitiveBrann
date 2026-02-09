@@ -14,3 +14,4 @@ ignore:
   - README.md
   - LICENSE
   - CHANGELOG.md
+  - PUBLISHING.md
