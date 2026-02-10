@@ -42,8 +42,11 @@ New-Item -ItemType Directory -Path $addonDir -Force | Out-Null
 # Files to include (only essential addon files)
 $filesToCopy = @(
     "MuteRepetitiveBrann.lua",
-    "MuteRepetitiveBrann.toc"
+    "MuteRepetitiveBrann.toc",
+    "README.md",
+    "LICENSE"
 )
+
 
 # Copy files
 foreach ($file in $filesToCopy) {
