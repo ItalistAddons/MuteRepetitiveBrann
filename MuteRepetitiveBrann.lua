@@ -756,8 +756,11 @@ local function SetupTooltip()
       return 
     end
     
-    local unit = data.unit or tooltip:GetUnit()
-    if not (unit and UnitExists(unit)) then 
+    local unit = data.unit or (tooltip.GetUnit and tooltip:GetUnit())
+    if not unit then
+      return
+    end
+    if not UnitExists(unit) then 
       return 
     end
     
