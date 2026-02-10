@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.4.1] - 2026-02-10
+
+### Fixed
+- Guard against nil before calling `UnitExists` in the tooltip handler to avoid taint errors during secure tooltip callbacks.
+- Defensive `tooltip:GetUnit()` check to prevent passing nil to protected APIs.
+
+### Packaging
+- Include `README.md` and `LICENSE` in the packaged zip.
+- Bumped package version to 1.4.1.
+
 ## [1.4.0] - 2026-02-09
 
 ### Added
