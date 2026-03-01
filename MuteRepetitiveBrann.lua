@@ -74,6 +74,12 @@ local criticalMuteList = {
   5769059, 5769060,
 }
 
+-- Known Brann NPC IDs for locale-independent tooltip detection
+local BRANN_NPC_IDS = {
+  [226517] = true,   -- Delves companion (TWW)
+  [186966] = true,   -- Explorer Brann (generic)
+}
+
 -- Input validation and sanitization helpers
 local function ValidateSoundId(idStr)
   -- Remove any whitespace (WoW doesn't have string:trim, so use gsub)
@@ -778,10 +784,91 @@ StaticPopupDialogs["MUTEBRANN_IMPORT"] = {
   preferredIndex = 3,
 }
 
+-- Tooltip enhancement (with error protection)
+-- Helper: safely extract a GUID, returning nil if secret or invalid.
+-- In WoW 12.0.0+, tooltip data fields (guid, healthGUID) and UnitGUID()
+-- results can be "secret values" that error on boolean tests, comparisons,
+-- string ops, and table indexing. We must check issecretvalue() BEFORE
+-- any other operation including truthiness tests.
+local function SafeGUID(val)
+  if val == nil then return nil end
+  if issecretvalue and issecretvalue(val) then return nil end
+  if type(val) == "string" and val ~= "" then return val end
+  return nil
+end
+
+local function GetTooltipGUID(tooltip, data)
+  if data then
+    local guid = SafeGUID(data.guid)
+    if guid then return guid end
+
+    guid = SafeGUID(data.healthGUID)
+    if guid then return guid end
+  end
+
+  if tooltip and tooltip.GetUnit then
+    local _, unit = tooltip:GetUnit()
+    if unit then
+      local guid
+      if securecallfunction then
+        guid = SafeGUID(securecallfunction(UnitGUID, unit))
+      else
+        guid = SafeGUID(UnitGUID(unit))
+      end
+      if guid then return guid end
+    end
+  end
+end
+
 local function SetupTooltip()
-  -- Midnight tooltip data can contain secret values that are unsafe to inspect here.
-  -- Disable tooltip augmentation until a verified secure-safe detection path exists.
-  return
+  if not (
+    TooltipDataProcessor and
+    TooltipDataProcessor.AddTooltipPostCall and
+    Enum and
+    Enum.TooltipDataType and
+    Enum.TooltipDataType.Unit
+  ) then
+    return
+  end
+  
+  TooltipDataProcessor.AddTooltipPostCall(Enum.TooltipDataType.Unit, function(tooltip, data)
+    if not (tooltip and data and isInitialized) then 
+      return 
+    end
+    
+    local guid = GetTooltipGUID(tooltip, data)
+    if not guid then
+      return
+    end
+    
+    -- Locale-independent NPC ID check via GUID
+    local isBrann = false
+    local _, _, _, _, _, npcIdStr = strsplit("-", guid)
+    local npcId = tonumber(npcIdStr)
+    if npcId and BRANN_NPC_IDS[npcId] then
+      isBrann = true
+    end
+    
+    if isBrann then
+      tooltip:AddLine(" ")
+      
+      local status, color
+      if isMuted and muteCritical then 
+        status, color = "Fully muted", "00ff00"
+      elseif isMuted then 
+        status, color = "Partially muted", "ffff00"
+      else 
+        status, color = "Not muted", "ff0000" 
+      end
+      
+      tooltip:AddLine(("|cff%sMuteBrann: %s|r"):format(color, status))
+      
+      if isMuted then
+        local muteCount = #GetFinalMuteList()
+        tooltip:AddLine(("|cff888888%d sounds muted|r"):format(muteCount))
+      end
+    end
+  end)
 end
 
 -- Settings registration (canvas layout — avoids Blizzard setting bleed)
