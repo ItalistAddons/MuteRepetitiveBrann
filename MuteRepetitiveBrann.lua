@@ -74,12 +74,6 @@ local criticalMuteList = {
   5769059, 5769060,
 }
 
--- Known Brann NPC IDs for locale-independent tooltip detection
-local BRANN_NPC_IDS = {
-  [226517] = true,   -- Delves companion (TWW)
-  [186966] = true,   -- Explorer Brann (generic)
-}
-
 -- Input validation and sanitization helpers
 local function ValidateSoundId(idStr)
   -- Remove any whitespace (WoW doesn't have string:trim, so use gsub)
@@ -784,84 +778,10 @@ StaticPopupDialogs["MUTEBRANN_IMPORT"] = {
   preferredIndex = 3,
 }
 
--- Tooltip enhancement (with error protection)
-local function GetTooltipGUID(tooltip, data)
-  if data then
-    if type(data.guid) == "string" and data.guid ~= "" then
-      return data.guid
-    end
-    if type(data.healthGUID) == "string" and data.healthGUID ~= "" then
-      return data.healthGUID
-    end
-  end
-
-  if tooltip and tooltip.GetUnit then
-    local _, unit = tooltip:GetUnit()
-    if unit then
-      if securecallfunction then
-        local guid = securecallfunction(UnitGUID, unit)
-        if type(guid) == "string" and guid ~= "" then
-          return guid
-        end
-      else
-        local guid = UnitGUID(unit)
-        if type(guid) == "string" and guid ~= "" then
-          return guid
-        end
-      end
-    end
-  end
-end
-
 local function SetupTooltip()
-  if not (
-    TooltipDataProcessor and
-    TooltipDataProcessor.AddTooltipPostCall and
-    Enum and
-    Enum.TooltipDataType and
-    Enum.TooltipDataType.Unit
-  ) then
-    return
-  end
-  
-  TooltipDataProcessor.AddTooltipPostCall(Enum.TooltipDataType.Unit, function(tooltip, data)
-    if not (tooltip and data and isInitialized) then 
-      return 
-    end
-    
-    local guid = GetTooltipGUID(tooltip, data)
-    if not guid then
-      return
-    end
-    
-    -- Locale-independent NPC ID check via GUID
-    local isBrann = false
-    local _, _, _, _, _, npcIdStr = strsplit("-", guid)
-    local npcId = tonumber(npcIdStr)
-    if npcId and BRANN_NPC_IDS[npcId] then
-      isBrann = true
-    end
-    
-    if isBrann then
-      tooltip:AddLine(" ")
-      
-      local status, color
-      if isMuted and muteCritical then 
-        status, color = "Fully muted", "00ff00"
-      elseif isMuted then 
-        status, color = "Partially muted", "ffff00"
-      else 
-        status, color = "Not muted", "ff0000" 
-      end
-      
-      tooltip:AddLine(("|cff%sMuteBrann: %s|r"):format(color, status))
-      
-      if isMuted then
-        local muteCount = #GetFinalMuteList()
-        tooltip:AddLine(("|cff888888%d sounds muted|r"):format(muteCount))
-      end
-    end
-  end)
+  -- Midnight tooltip data can contain secret values that are unsafe to inspect here.
+  -- Disable tooltip augmentation until a verified secure-safe detection path exists.
+  return
 end
 
 -- Settings registration (canvas layout — avoids Blizzard setting bleed)

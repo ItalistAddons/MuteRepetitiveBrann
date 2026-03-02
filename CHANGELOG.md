@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.4.4] - 2026-03-02
+
+### Fixed
+- Disabled the Brann tooltip status augmentation to avoid Midnight secret-value taint errors during tooltip processing in delves.
+
+### Compatibility
+- Preserves muting behavior, settings, and slash commands.
+- Tooltip status text is temporarily unavailable until a verified secure-safe implementation is found.
+
 ## [1.4.3] - 2026-03-01
 
 ### Fixed

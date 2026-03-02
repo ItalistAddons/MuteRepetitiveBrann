@@ -22,6 +22,7 @@ Silences Brann Bronzebeard's repetitive voice lines during delves and adventures
 - Retail Midnight compatible (`## Interface: 120001`)
 - Existing SavedVariables are preserved
 - If the client no longer exposes the sound mute API, the addon warns once and disables muting instead of throwing Lua errors
+- Tooltip status augmentation is temporarily disabled on Midnight retail to avoid secure tooltip taint errors
 
 ## Commands
 
