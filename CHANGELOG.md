@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.4.5] - 2026-03-02
+
+### Fixed
+- Restored Brann tooltip status augmentation with stricter secret-value handling for Midnight tooltip data.
+- Safely skip tooltip augmentation when Blizzard provides secret GUID or unit-token values.
+
+### Compatibility
+- Preserves the `1.4.4` taint fix while re-enabling tooltip status where safe.
+- Thanks @Amadeus- for identifying the secret-value tooltip path and the `SafeGUID()`-based direction.
+
 ## [1.4.4] - 2026-03-02
 
 ### Fixed
