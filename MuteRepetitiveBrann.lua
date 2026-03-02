@@ -808,13 +808,11 @@ local function GetTooltipGUID(tooltip, data)
 
   if tooltip and tooltip.GetUnit then
     local _, unit = tooltip:GetUnit()
-    if unit then
-      local guid
-      if securecallfunction then
-        guid = SafeGUID(securecallfunction(UnitGUID, unit))
-      else
-        guid = SafeGUID(UnitGUID(unit))
-      end
+    -- unit token from tooltip can be a secret value in 12.0.0+;
+    -- secret values error on truthiness tests, so check nil first (== nil is safe),
+    -- then check issecretvalue before passing to UnitGUID.
+    if unit ~= nil and not (issecretvalue and issecretvalue(unit)) then
+      local guid = SafeGUID(UnitGUID(unit))
       if guid then return guid end
     end
   end
